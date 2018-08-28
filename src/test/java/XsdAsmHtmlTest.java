@@ -1,7 +1,6 @@
 import org.junit.Assert;
 import org.junit.Test;
-import org.xmlet.html.EnumTypeContentType;
-import org.xmlet.html.Html;
+import org.xmlet.htmlFaster.*;
 
 public class XsdAsmHtmlTest {
 
@@ -9,27 +8,35 @@ public class XsdAsmHtmlTest {
     public void testGeneratedClassesIntegrity() throws Exception {
         CustomVisitorHtml customVisitor = new CustomVisitorHtml();
 
-        Html<Html> root = new Html<>(customVisitor);
+        new Html<>(customVisitor)
+            .head()
+                .comment("This is a comment.")
+                .meta().attrCharset("UTF-8").º()
+                .title()
+                    .text("Title").º()
+                .link().attrType(EnumTypeContentType.TEXT_CSS).attrHref("/assets/images/favicon.png").º()
+                .link().attrType(EnumTypeContentType.TEXT_CSS).attrHref("/assets/styles/main.css").º().º()
+            .body().attrClass("clear")
+                .div()
+                    .header()
+                        .section()
+                            .div()
+                                .img().attrId("brand").attrSrc("./assets/images/logo.png").º()
+                                .aside()
+                                    .em()
+                                        .text("Advertisement")
+                                    .span()
+                                        .text("HtmlApi is great!")
+                                    .º()
+                                .º()
+                            .º()
+                        .º()
+                    .º()
+                .º()
+            .º()
+        .º().º();
 
-        String result = customVisitor.getResult(
-                root.head()
-                        .comment("This is a comment.")
-                        .meta().attrCharset("UTF-8").º()
-                        .title()
-                            .text("Title").º()
-                        .link().attrType(EnumTypeContentType.TEXT_CSS).attrHref("/assets/images/favicon.png").º()
-                        .link().attrType(EnumTypeContentType.TEXT_CSS).attrHref("/assets/styles/main.css").º().º()
-                    .body().attrClass("clear")
-                        .div()
-                            .header()
-                                .section()
-                                    .div()
-                                        .img().attrId("brand").attrSrc("./assets/images/logo.png").º()
-                                        .aside()
-                                            .em()
-                                                .text("Advertisement")
-                                            .span()
-                                                .text("HtmlApi is great!"));
+        String result = customVisitor.getResult();
 
         String expected =   "<html>\n" +
                                 "\t<head>\n" +
@@ -65,6 +72,23 @@ public class XsdAsmHtmlTest {
                                     "\t\t</div>\n" +
                                 "\t</body>\n" +
                             "</html>";
+
+        Assert.assertEquals(expected, result);
+    }
+
+    @Test
+    public void customAttribute(){
+        CustomVisitorHtml visitor = new CustomVisitorHtml();
+
+        Html<Element> html = new Html<>(visitor);
+
+        html.addAttr("attr1", "value1").º();
+
+        String result = visitor.getResult();
+
+        String expected =
+                "<html attr1=\"value1\">\n" +
+                "</html>";
 
         Assert.assertEquals(expected, result);
     }

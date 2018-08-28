@@ -1,7 +1,6 @@
 import org.junit.Assert;
 import org.junit.Test;
-import org.xmlet.wpfe.Canvas;
-import org.xmlet.wpfe.Element;
+import org.xmlet.wpfeFaster.Canvas;
 
 public class XsdAsmWpfeTest {
 
@@ -12,12 +11,12 @@ public class XsdAsmWpfeTest {
     public void testWpfe(){
         CustomVisitorWpfe visitor = new CustomVisitorWpfe();
 
-        Canvas<Element> canvas = new Canvas<>(visitor);
+        new Canvas<>(visitor)
+                .canvasClip("clip")
+                .inkPresenter("ink")
+            .º();
 
-        canvas.canvasClip("clip")
-                .inkPresenter("ink").º();
-
-        String result = visitor.getResult(canvas);
+        String result = visitor.getResult();
 
         String expected =
                 "<canvas>\n" +

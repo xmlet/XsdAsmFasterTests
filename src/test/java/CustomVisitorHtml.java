@@ -1,12 +1,13 @@
-import org.xmlet.html.*;
+import org.xmlet.htmlFaster.ElementVisitor;
 
 @SuppressWarnings("Duplicates")
 public class CustomVisitorHtml extends ElementVisitor {
 
+    private int tabCount = 0;
     private StringBuilder stringBuilder = new StringBuilder();
 
     @Override
-    public void visit(Element elem) {
+    public void visitElement(String elementName) {
         int length = stringBuilder.length() - 1;
 
         if (length != -1){
@@ -23,27 +24,24 @@ public class CustomVisitorHtml extends ElementVisitor {
             }
         }
 
-        doTabs(elem.getDepth());
-        stringBuilder.append('<').append(elem.getName());
+        doTabs();
+        stringBuilder.append('<').append(elementName);
+        ++tabCount;
     }
 
-    private void doTabs(int tabCount) {
-        char[] tabs = new char[tabCount];
-
+    private void doTabs() {
         for (int i = 0; i < tabCount; i++) {
-            tabs[i] = '\t';
+            stringBuilder.append("\t");
         }
-
-        stringBuilder.append(tabs);
     }
 
     @Override
-    public void visit(Attribute attribute) {
-        stringBuilder.append(' ').append(attribute.getName()).append("=\"").append(attribute.getValue()).append('\"');
+    public void visitAttribute(String attributeName, String attributeValue) {
+        stringBuilder.append(' ').append(attributeName).append("=\"").append(attributeValue).append('\"');
     }
 
     @Override
-    public void visitParent(Element element) {
+    public void visitParent(String elementName) {
         char lastChar = stringBuilder.charAt(stringBuilder.length() - 1);
 
         if (lastChar != '\n' && lastChar != '>'){
@@ -54,39 +52,30 @@ public class CustomVisitorHtml extends ElementVisitor {
             stringBuilder.append('\n');
         }
 
-        doTabs(element.getDepth());
-        stringBuilder.append("</").append(element.getName()).append('>');
+        --tabCount;
+        doTabs();
+        stringBuilder.append("</").append(elementName).append('>');
     }
 
-    String getResult(Element x){
-        while (!(x instanceof Html) ){
-            x = x.º();
-        }
-
-        x.º();
-
+    String getResult(){
         return stringBuilder.toString();
     }
 
     @Override
-    public void visit(Text text){
-        String textValue = text.getValue();
-
-        if (textValue != null){
+    public <R> void visitText(R text){
+        if (text != null){
             stringBuilder.append(">\n");
-            doTabs(text.getDepth());
-            stringBuilder.append(textValue).append('\n');
+            doTabs();
+            stringBuilder.append(text).append('\n');
         }
     }
 
     @Override
-    public void visit(Comment comment){
-        String textValue = comment.getValue();
-
-        if (textValue != null){
+    public <R> void visitComment(R comment){
+        if (comment != null){
             stringBuilder.append(">\n");
-            doTabs(comment.getDepth());
-            stringBuilder.append("<!-- ").append(textValue).append(" -->\n");
+            doTabs();
+            stringBuilder.append("<!-- ").append(comment).append(" -->\n");
         }
     }
 }
